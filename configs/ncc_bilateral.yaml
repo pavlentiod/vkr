@@ -1,0 +1,11 @@
+pipeline:
+  - stage: disparity/ncc
+    params: {num_disparities: 64, block_size: 9}
+  - stage: depth/depth_from_disp
+  - stage: postproc/bilateral
+    params: {size: 5}
+  - stage: pointcloud/from_depth
+  - stage: mesh/poisson
+    params: { depth: 8 }
+  - stage: finalize/clean
+    params: { target_triangles: 50000 }
