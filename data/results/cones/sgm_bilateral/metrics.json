@@ -1,0 +1,15 @@
+{
+  "metrics": {
+    "rmse": 113.40406036376953,
+    "abs_rel": 0.7925326824188232,
+    "valid_pixels": 163321
+  },
+  "times": {
+    "disparity/sgm": 0.0412,
+    "depth/depth_from_disp": 0.0,
+    "postproc/bilateral": 0.002,
+    "pointcloud/from_depth": 0.01,
+    "mesh/poisson": 0.7802,
+    "finalize/clean": 0.0237
+  }
+}

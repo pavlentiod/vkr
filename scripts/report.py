@@ -1,5 +1,4 @@
 import json
-
 import pandas as pd
 
 from src.core.paths import RESULTS_DIR, SUMMARY_PATH
