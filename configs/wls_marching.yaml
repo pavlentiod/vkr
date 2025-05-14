@@ -1,0 +1,14 @@
+pipeline:
+  - stage: disparity/load_disp
+  - stage: postproc/wls
+  - stage: depth/from_disparity
+    params:
+      focal_length: 374.0
+      baseline: 0.1
+
+  - stage: pointcloud/from_depth
+
+  - stage: mesh/marching
+    params:
+      voxel_size: 0.005
+      sdf_trunc: 0.04

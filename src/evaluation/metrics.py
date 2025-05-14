@@ -1,40 +1,27 @@
 import numpy as np
 
+
 def evaluate_pipeline(pred_disp: np.ndarray, gt_disp: np.ndarray) -> dict:
-    """
-    Рассчитать метрики качества disparity-карты.
+    pred_disp = pred_disp.astype(np.float32)
+    gt_disp   = gt_disp.astype(np.float32)
 
-    Parameters
-    ----------
-    pred_disp : np.ndarray
-        Предсказанная карта диспаратности (float32 / float64).
-    gt_disp : np.ndarray
-        Эталонная (ground-truth) карта диспаратности.
-
-    Returns
-    -------
-    dict
-        rmse        – среднеквадратичная ошибка
-        abs_rel     – средняя абсолютная относительная ошибка
-        valid_pixels – число пикселей, учтённых в расчёте
-    """
-    # маска валидных GT-значений: >0 и не NaN/Inf
-    mask = (gt_disp > 0) & np.isfinite(gt_disp)
+    # 1. Единый валид-mask: GT валидно и предсказание конечное
+    mask = (gt_disp > 0) & np.isfinite(gt_disp) & np.isfinite(pred_disp)
     if not np.any(mask):
         return {"rmse": None, "abs_rel": None, "valid_pixels": 0}
 
     pred = pred_disp[mask]
     gt   = gt_disp[mask]
 
-    # RMSE = sqrt(mean((pred - gt)^2))
-    diff = pred - gt
+    # 2. Проверка масштаба (опц.) — warn, если диспаратности отличаются >×8
+    ratio = np.median(gt) / (np.median(pred) + 1e-6)
+    if ratio > 8 or ratio < 0.125:
+        print("[WARN] Предсказание и GT, вероятно, в разных масштабах.")
+
+    # 3. Ограничиваем выбросы (например, 99-й перцентиль)
+    diff = np.clip(pred - gt, -1e4, 1e4)
+
     rmse = float(np.sqrt(np.mean(diff ** 2)))
+    abs_rel = float(np.mean(np.abs(diff) / np.maximum(gt, 1e-6)))
 
-    # Abs Rel = mean(|pred - gt| / gt)
-    abs_rel = float(np.mean(np.abs(diff) / gt))
-
-    return {
-        "rmse": rmse,
-        "abs_rel": abs_rel,
-        "valid_pixels": int(gt.size)
-    }
+    return {"rmse": rmse, "abs_rel": abs_rel, "valid_pixels": int(mask.sum())}

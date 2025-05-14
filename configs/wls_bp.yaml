@@ -1,0 +1,14 @@
+pipeline:
+  - stage: disparity/load_disp
+  - stage: postproc/wls
+  - stage: depth/from_disparity
+    params:
+      focal_length: 374.0
+      baseline: 0.1
+
+  - stage: pointcloud/from_depth
+
+  - stage: mesh/bp
+    params:
+      radius: null        # auto-оценка
+      factor: 1.6         # радиусы: d, 1.6·d, 1.6²·d

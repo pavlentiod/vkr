@@ -1,0 +1,13 @@
+pipeline:
+  - stage: disparity/load_disp
+  - stage: postproc/wls
+  - stage: depth/from_disparity
+    params:
+      focal_length: 374.0
+      baseline: 0.1
+
+  - stage: pointcloud/from_depth
+
+  - stage: mesh/alpha_shape
+    params:
+      alpha: 0.028      # подбери под свою плотность
